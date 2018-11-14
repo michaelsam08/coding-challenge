@@ -1,17 +1,39 @@
 class PostsController < ApplicationController
-  def index
-    # Return all `Post`
+  http_basic_authenticate_with name: "michael", password:"1234", except: [:index, :show]
+  
+  def index  #show all posts
+    @posts = Post.all
   end
-
-  def new
-    # Return view to create a new Post
+  
+  def show  #show single post
+    @post = Post.find(params[:id])
+  end
+  
+  def new  
+    @post = Post.new
   end
 
   def create
-    # Add a new `Post` to the database
-  end
+    # render plain: params[:post].inspect
+    @post = Post.new(post_params)
+
+    if(@post.save)
+      redirect_to @post
+    else
+      render 'new'
+  end    
+
 
   def destroy
-    # Remove a `Post` from the database
+    @post = Post.find(params[:id])
+    @post.destroy
+  
+    redirect_to posts_path
   end
+ 
+
+  private def post_params
+      params.require(:post).permit(:title, :body)
+  end
+end
 end
